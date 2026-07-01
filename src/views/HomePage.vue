@@ -134,8 +134,7 @@ const getCoins = async () => {
     /*
       fetch() request ke API online
     */
-    const response = await fetch("https://api.coingecko.com/api/v3/simple/price")
-    /*
+    const response = await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,tether,binancecoin")
       response diubah
       menjadi JSON object
     */
