@@ -55,105 +55,51 @@
   </ion-page>
 </template>
 
+
 <script setup lang="ts">
-/*
-  Import komponen Ionic
-  agar bisa dipakai di template
-*/
 import {
-  IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardContent,
-  IonSearchbar,
+  IonPage, IonHeader, IonToolbar, IonTitle, IonContent,
+  IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonSearchbar,
 } from "@ionic/vue";
-
-/*
-  Import Vue Composition API
-
-  ref()      = membuat data reactive
-  onMounted  = jalan saat page selesai load
-  computed() = membuat data hasil filter/perhitungan
-*/
 import { ref, onMounted, computed } from "vue";
 
-/*
-  Menyimpan data cryptocurrency
-
-  ref([]) artinya:
-  data reactive berupa array kosong
-*/
 const coins = ref<any[]>([]);
-
-/*
-  Menyimpan teks pencarian user
-
-  Awalnya kosong:
-  ""
-*/
 const searchText = ref("");
 
-/*
-  Computed property untuk search
-
-  filteredCoins otomatis berubah
-  ketika searchText atau coins berubah
-*/
 const filteredCoins = computed(() => {
-  /*
-    filter() digunakan untuk memilih
-    data coin yang cocok
-  */
   return coins.value.filter((coin) =>
-    /*
-      toLowerCase()
-      agar search tidak sensitif huruf besar/kecil
-
-      includes()
-      mengecek apakah nama coin
-      mengandung teks search
-    */
     coin.name.toLowerCase().includes(searchText.value.toLowerCase()),
   );
 });
 
-/*
-  Function mengambil data API
-*/
 const getCoins = async () => {
   try {
-    const response = await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,tether,binancecoin&order=market_cap_desc&per_page=4");
+    // 1. Pake API CoinGecko Live. Gratis tanpa key
+    const url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,tether,binancecoin&order=market_cap_desc&per_page=4&page=1&sparkline=false";
+    
+    const response = await fetch(url);
     const data = await response.json();
 
-    // Mapping biar formatnya sama kayak `ldifadh.github.io`
-    coins.value = data.map(coin => ({
+    // 2. Mapping biar formatnya sama kayak JSON statis kamu
+    // Jadi `{{ coin.rank }}` dan `{{ coin.price_usd }}` di template tetap jalan
+    coins.value = data.map((coin: any) => ({
       id: coin.id,
-      rank: coin.market_cap_rank, // rename
+      rank: coin.market_cap_rank, // dari API: market_cap_rank -> rank
       name: coin.name,
       symbol: coin.symbol.toUpperCase(),
-      price_usd: coin.current_price // rename
+      price_usd: coin.current_price.toFixed(2) // dari API: current_price -> price_usd
     }));
 
   } catch (error) {
-    console.log(error);
+    console.log("Gagal fetch API:", error);
   }
 };
 
-/*
-  onMounted()
-
-  Jalan saat halaman selesai dibuka
-  lalu memanggil getCoins()
-*/
 onMounted(() => {
   getCoins();
 });
 </script>
+      
 
 <style scoped>
 /*
