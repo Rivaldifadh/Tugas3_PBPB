@@ -126,35 +126,20 @@ const filteredCoins = computed(() => {
   Function mengambil data API
 */
 const getCoins = async () => {
-  /*
-    try-catch dipakai
-    untuk menangani error
-  */
   try {
-    /*
-      fetch() request ke API online
-    */
-    const response = await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,tether,binancecoin")
-      response diubah
-      menjadi JSON object
-    */
+    const response = await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,tether,binancecoin&order=market_cap_desc&per_page=4");
     const data = await response.json();
 
-    /*
-      Memasukkan data API
-      ke variabel coins
+    // Mapping biar formatnya sama kayak `ldifadh.github.io`
+    coins.value = data.map(coin => ({
+      id: coin.id,
+      rank: coin.market_cap_rank, // rename
+      name: coin.name,
+      symbol: coin.symbol.toUpperCase(),
+      price_usd: coin.current_price // rename
+    }));
 
-      data.data karena struktur API:
-      {
-        data:[]
-      }
-    */
-    coins.value = data.data;
   } catch (error) {
-    /*
-      Jika error,
-      tampilkan di console
-    */
     console.log(error);
   }
 };
